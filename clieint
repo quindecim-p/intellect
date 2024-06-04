@@ -1,0 +1,103 @@
+const express = require('express')
+const fs = require('fs')
+const app = express()
+
+app.use(express.static(__dirname))
+app.use(express.urlencoded({ extended: true }))
+app.use(express.json())
+
+app.get('/generate', (req, res) => {
+    const dataArray = Array.from({ length: 80 }, () => (Math.random() * 9 + 1).toFixed(2))
+
+    fs.writeFile('data.txt', dataArray.join('\n'), (err) => {
+        if (err) {
+            console.error('Error writing file (data.txt):', err)
+            res.status(500).send('Error writing file')
+            return
+        }
+        console.log('Data has been written to data.txt')
+    })
+
+    let sortedArray = dataArray.sort((a, b) => a - b)
+
+    fs.writeFile('ascending.txt', sortedArray.join('\n'), (err) => {
+        if (err) {
+            console.error('Error writing file (ascending.txt):', err)
+            res.status(500).send('Error writing file')
+            return
+        }
+        console.log('Data has been written to ascending.txt')
+    })
+
+    sortedArray = dataArray.sort((a, b) => b - a)
+
+    fs.writeFile('descending.txt', sortedArray.join('\n'), (err) => {
+        if (err) {
+            console.error('Error writing file (descending.txt):', err)
+            res.status(500).send('Error writing file')
+            return
+        }
+        console.log('Data has been written to descending.txt')
+    })
+
+    fs.readFile('data.txt', 'utf8', (err, data) => {
+        if (err) {
+            console.error('Error reading file (data.txt):', err)
+            res.status(500).send('Error reading file')
+            return
+        }
+        const dataArray = data.split('\n').map(parseFloat)
+        res.json(dataArray)
+    })
+
+})
+
+app.get('/ascending', (req, res) => {
+
+    fs.readFile('ascending.txt', 'utf8', (err, data) => {
+        if (err) {
+            console.error('Error reading file (ascending.txt):', err)
+            res.status(500).send('Error reading file')
+            return
+        }
+        const dataArray = data.split('\n').map(parseFloat)
+        res.json(dataArray);
+    })
+
+})
+
+app.get('/descending', (req, res) => {
+
+    fs.readFile('descending.txt', 'utf8', (err, data) => {
+        if (err) {
+            console.error('Error reading file (descending.txt):', err)
+            res.status(500).send('Error reading file')
+            return
+        }
+        const dataArray = data.split('\n').map(parseFloat)
+        res.json(dataArray);
+    })
+
+})
+
+app.get('/data', (req, res) => {
+
+    fs.readFile('data.txt', 'utf8', (err, data) => {
+        if (err) {
+            console.error('Error reading file (data.txt):', err)
+            res.status(500).send('Error reading file')
+            return
+        }
+        const dataArray = data.split('\n').map(parseFloat)
+        res.json(dataArray);
+    })
+
+})
+
+const PORT = 3000
+app.listen(PORT, (err) => {
+    if (err) {
+        return console.log(err)
+    }
+    console.log('Server OK')
+})
